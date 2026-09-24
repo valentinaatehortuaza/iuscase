@@ -5,48 +5,47 @@
 <h1>{{ caso.sentencia.titulo }}</h1>
 
 <div class="tarjeta">
+    <h3>De qué trata el caso</h3>
+    <p>{{ caso.nucleo_narrativo }}</p>
+
     <h3>Problema jurídico</h3>
     <p>{{ caso.problema_juridico }}</p>
-
-    <h3>Hechos</h3>
-    <p>{{ caso.hechos }}</p>
-
-    {% if caso.actores %}
-    <h3>Actores</h3>
-    <ul>
-        {% for actor in caso.actores.split("\n") if actor %}
-        <li>{{ actor }}</li>
-        {% endfor %}
-    </ul>
-    {% endif %}
-
-    {% if caso.elementos_clave %}
-    <h3>Elementos clave</h3>
-    <ul>
-        {% for elemento in caso.elementos_clave.split("\n") if elemento %}
-        <li>{{ elemento }}</li>
-        {% endfor %}
-    </ul>
-    {% endif %}
-
-    <h3>Contexto</h3>
-    <p>{{ caso.contexto }}</p>
 </div>
 
 <div class="progreso">
-    <div class="progreso-texto"><span id="progreso-contador">0</span> de {{ caso.preguntas|length }} preguntas respondidas</div>
+    <div class="progreso-texto"><span id="progreso-contador">0</span> de {{ preguntas|length }} preguntas respondidas</div>
     <div class="progreso-barra"><div class="progreso-relleno" id="progreso-relleno"></div></div>
 </div>
 
 <form method="POST" class="formulario" id="formulario-caso">
-    {% for pregunta in caso.preguntas|sort(attribute="orden") %}
-    <div class="campo">
-        <label for="respuesta_{{ pregunta.id }}">{{ pregunta.orden }}. {{ pregunta.enunciado }}</label>
-        <textarea id="respuesta_{{ pregunta.id }}" name="respuesta_{{ pregunta.id }}" rows="4" required></textarea>
-    </div>
+    {% set capa_actual = namespace(valor=None) %}
+    {% for pregunta in preguntas %}
+        {% if pregunta.capa != capa_actual.valor %}
+            {% set capa_actual.valor = pregunta.capa %}
+            <p class="separador">
+                {% if pregunta.capa == 1 %}— Filtro procesal —{% else %}— Análisis sustantivo —{% endif %}
+            </p>
+        {% endif %}
+
+        <div class="campo pregunta-bloque">
+            {% if pregunta.hechos_relevantes %}
+            <div class="hechos-relevantes">
+                <span class="hechos-relevantes-titulo">Hechos relevantes para esta pregunta</span>
+                <p>{{ pregunta.hechos_relevantes }}</p>
+            </div>
+            {% endif %}
+            <label for="respuesta_{{ pregunta.id }}">{{ pregunta.orden }}. {{ pregunta.enunciado }}</label>
+            <textarea id="respuesta_{{ pregunta.id }}" name="respuesta_{{ pregunta.id }}" rows="4" required></textarea>
+        </div>
     {% endfor %}
-    <button type="submit">Enviar mi análisis</button>
+    <button type="submit" id="boton-enviar">Enviar mi análisis</button>
 </form>
+
+<div class="overlay-carga" id="overlay-carga">
+    <div class="spinner"></div>
+    <p class="overlay-titulo">Comparando tu análisis con la sentencia real…</p>
+    <p class="overlay-subtitulo">Esto puede tardar entre 30 segundos y un par de minutos. No cierres ni recargues esta página.</p>
+</div>
 
 <script>
     (function () {
@@ -67,6 +66,16 @@
             a.addEventListener('input', actualizar);
         });
         actualizar();
+
+        var formulario = document.getElementById('formulario-caso');
+        var overlay = document.getElementById('overlay-carga');
+        var boton = document.getElementById('boton-enviar');
+
+        formulario.addEventListener('submit', function () {
+            overlay.classList.add('overlay-visible');
+            boton.disabled = true;
+            boton.textContent = 'Enviando…';
+        });
     })();
 </script>
 

@@ -11,7 +11,7 @@
     (esto puede tardar unos segundos).
 </p>
 
-<form method="POST" class="formulario" enctype="multipart/form-data">
+<form method="POST" class="formulario" enctype="multipart/form-data" id="formulario-sentencia">
     <div class="campo">
         <label for="titulo">Título de la sentencia</label>
         <input type="text" id="titulo" name="titulo" required>
@@ -41,7 +41,27 @@
         <textarea id="texto" name="texto" rows="10"></textarea>
     </div>
 
-    <button type="submit">Generar caso de estudio</button>
+    <button type="submit" id="boton-generar">Generar caso de estudio</button>
 </form>
+
+<div class="overlay-carga" id="overlay-carga">
+    <div class="spinner"></div>
+    <p class="overlay-titulo">Analizando la sentencia con IA…</p>
+    <p class="overlay-subtitulo">Esto puede tardar entre 30 segundos y un par de minutos, dependiendo de qué tan larga sea la sentencia. No cierres ni recargues esta página.</p>
+</div>
+
+<script>
+    (function () {
+        var formulario = document.getElementById('formulario-sentencia');
+        var overlay = document.getElementById('overlay-carga');
+        var boton = document.getElementById('boton-generar');
+
+        formulario.addEventListener('submit', function () {
+            overlay.classList.add('overlay-visible');
+            boton.disabled = true;
+            boton.textContent = 'Generando…';
+        });
+    })();
+</script>
 
 {% endblock %}

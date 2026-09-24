@@ -4,29 +4,35 @@
 
 <h1>Retroalimentación de tu análisis</h1>
 
-<div class="tarjeta">
-    <h3>Tu análisis</h3>
-    <p><strong>Normas que citaste:</strong> {{ analisis.normas }}</p>
-    <p><strong>Tus argumentos:</strong> {{ analisis.argumentos }}</p>
-    <p><strong>Tu decisión propuesta:</strong> {{ analisis.decision_estudiante }}</p>
+<div class="tarjeta puntaje-tarjeta">
+    <h3>Resultado global</h3>
+    {% if caso.porcentaje_global is not none %}
+    <div class="puntaje-circulo puntaje-{{ 'alto' if caso.porcentaje_global >= 70 else ('medio' if caso.porcentaje_global >= 40 else 'bajo') }}">
+        <span>{{ caso.porcentaje_global }}%</span>
+    </div>
+    <p class="puntaje-detalle">{{ caso.puntaje_total }} de {{ caso.elementos_puntuables }} elementos evaluables</p>
+    {% else %}
+    <p>No hay elementos puntuables para este caso.</p>
+    {% endif %}
 </div>
 
-<div class="tarjeta">
-    <h3>Decisión real del juez</h3>
-    <p><strong>Decisión:</strong> {{ decision.decision }}</p>
-    <p><strong>Fundamentos:</strong> {{ decision.fundamentos }}</p>
-    <p><strong>Resultado:</strong> {{ decision.resultado }}</p>
-</div>
+<div class="lista-diagnostico">
+    {% for d in diagnostico %}
+    <div class="tarjeta diagnostico-item">
+        <h3>
+            {{ d.pregunta.orden }}. {{ d.elemento }}
+            <span class="badge badge-veredicto-{{ d.veredicto }}">{{ d.veredicto.replace('_', ' ') }}</span>
+        </h3>
 
-<div class="tarjeta">
-    <h3>
-        Coherencia:
-        <span class="badge badge-coherencia-{{ retro.coherencia }}">{{ retro.coherencia }}</span>
-    </h3>
-    <p><strong>Fortalezas:</strong> {{ retro.fortalezas }}</p>
-    <p><strong>Debilidades:</strong> {{ retro.debilidades }}</p>
-    <p><strong>Sugerencias:</strong> {{ retro.sugerencias }}</p>
-    <p><strong>Resultado:</strong> {{ retro.resultado }}</p>
+        <p class="diagnostico-pregunta"><strong>Pregunta:</strong> {{ d.pregunta.enunciado }}</p>
+        <p><strong>Tu respuesta:</strong> {{ d.respuesta_estudiante }}</p>
+        <p><strong>Explicación:</strong> {{ d.explicacion }}</p>
+
+        {% if d.fragmento_sentencia %}
+        <blockquote class="fragmento-sentencia">{{ d.fragmento_sentencia }}</blockquote>
+        {% endif %}
+    </div>
+    {% endfor %}
 </div>
 
 <p><a class="enlace" href="{{ url_for('dashboard.panel') }}">← Volver a mi panel</a></p>

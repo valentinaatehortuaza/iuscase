@@ -15,6 +15,11 @@
         <h3>{{ caso.sentencia.titulo }}</h3>
         <p>{{ caso.problema_juridico }}</p>
         <span class="badge badge-{{ caso.estado }}">{{ caso.estado }}</span>
+        {% if caso.estado == "completado" and caso.porcentaje_global is not none %}
+        <span class="badge badge-veredicto-{{ 'acertado' if caso.porcentaje_global >= 70 else ('incompleto' if caso.porcentaje_global >= 40 else 'incorrecto') }}">
+            {{ caso.porcentaje_global }}%
+        </span>
+        {% endif %}
         <p>
             {% if caso.estado == "completado" %}
             <a href="{{ url_for('casos.ver_retroalimentacion', caso_id=caso.id) }}"><button>Ver retroalimentación</button></a>

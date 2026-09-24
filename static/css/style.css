@@ -178,7 +178,7 @@ button:hover, .boton:hover{
     font-weight:600;
     text-transform:uppercase;
     letter-spacing:0.5px;
-    margin:8px 0;
+    margin:8px 6px 8px 0;
 }
 .badge-en_progreso{
     background: rgba(245,158,11,0.15);
@@ -245,4 +245,148 @@ button:hover, .boton:hover{
 
 a{
     text-decoration:none;
+}
+
+/* ================== Flujo IUSCase (minuta consolidada) ================== */
+
+.pregunta-bloque{
+    background: rgba(255,255,255,0.02);
+    border:1px solid rgba(255,255,255,0.06);
+    border-radius:10px;
+    padding:18px 20px;
+}
+
+.hechos-relevantes{
+    background: rgba(212,175,55,0.06);
+    border-left:3px solid var(--dorado);
+    border-radius:6px;
+    padding:12px 16px;
+    margin-bottom:16px;
+}
+.hechos-relevantes-titulo{
+    display:block;
+    font-size:11px;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:0.6px;
+    color: var(--dorado-suave);
+    margin-bottom:6px;
+}
+.hechos-relevantes p{
+    font-size:15px;
+    margin:0;
+    color: var(--texto-suave);
+}
+
+.puntaje-tarjeta{
+    text-align:center;
+    max-width:400px;
+}
+.puntaje-circulo{
+    width:140px;
+    height:140px;
+    border-radius:50%;
+    margin:10px auto 6px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-family:'Playfair Display', serif;
+    font-size:32px;
+    font-weight:700;
+    border:6px solid;
+}
+.puntaje-circulo.puntaje-alto{
+    color: var(--verde);
+    border-color: var(--verde);
+    background: rgba(34,197,94,0.08);
+}
+.puntaje-circulo.puntaje-medio{
+    color: var(--naranja);
+    border-color: var(--naranja);
+    background: rgba(245,158,11,0.08);
+}
+.puntaje-circulo.puntaje-bajo{
+    color: var(--rojo);
+    border-color: var(--rojo);
+    background: rgba(248,113,113,0.08);
+}
+.puntaje-detalle{
+    text-align:center;
+    color: var(--texto-suave);
+    font-size:14px;
+}
+
+.diagnostico-item h3{
+    display:flex;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:10px;
+}
+.diagnostico-pregunta{
+    color: var(--texto-suave);
+}
+
+.badge-veredicto-acertado{
+    background: rgba(34,197,94,0.15); color: var(--verde); border:1px solid rgba(34,197,94,0.4);
+}
+.badge-veredicto-incompleto{
+    background: rgba(245,158,11,0.15); color: var(--naranja); border:1px solid rgba(245,158,11,0.4);
+}
+.badge-veredicto-incorrecto{
+    background: rgba(248,113,113,0.15); color: var(--rojo); border:1px solid rgba(248,113,113,0.4);
+}
+.badge-veredicto-no_aplicable{
+    background: rgba(148,163,184,0.15); color: var(--texto-suave); border:1px solid rgba(148,163,184,0.4);
+}
+
+.fragmento-sentencia{
+    margin:14px 0 0;
+    padding:12px 18px;
+    border-left:3px solid var(--dorado-suave);
+    background: rgba(255,255,255,0.03);
+    font-style:italic;
+    color: var(--texto-suave);
+    font-size:15px;
+}
+
+/* ================== Overlay de carga (mientras la IA procesa) ================== */
+
+.overlay-carga{
+    display:none;
+    position:fixed;
+    inset:0;
+    background: rgba(15,23,42,0.92);
+    z-index:1000;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding:20px;
+}
+.overlay-carga.overlay-visible{
+    display:flex;
+}
+.spinner{
+    width:56px;
+    height:56px;
+    border-radius:50%;
+    border:5px solid rgba(212,175,55,0.2);
+    border-top-color: var(--dorado);
+    animation: girar 0.9s linear infinite;
+    margin-bottom:24px;
+}
+@keyframes girar{
+    to{ transform: rotate(360deg); }
+}
+.overlay-titulo{
+    font-family:'Playfair Display', serif;
+    font-size:22px;
+    color: var(--dorado-suave);
+    margin:0 0 10px;
+}
+.overlay-subtitulo{
+    font-size:14px;
+    color: var(--texto-suave);
+    max-width:420px;
+    margin:0;
 }

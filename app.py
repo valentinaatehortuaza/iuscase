@@ -12,9 +12,7 @@ from models import (
     CasoEstudio,
     Pregunta,
     Respuesta,
-    Analisis,
-    DecisionJudicial,
-    Retroalimentacion,
+    DiagnosticoElemento,
 )
 from routes.auth import auth_bp
 from routes.dashboard import dashboard_bp

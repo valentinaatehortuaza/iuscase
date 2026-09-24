@@ -12,8 +12,8 @@ su actual lugar de residencia.
 """
 
 if __name__ == "__main__":
-    print("Probando conexion con la API de Anthropic...")
+    print("Probando conexion con la API de Anthropic (Etapa 0 - clasificacion)...")
     servicio = ServicioIA()
-    resultado = servicio.analizar_sentencia(SENTENCIA_DE_PRUEBA)
+    resultado = servicio.clasificar_sentencia(SENTENCIA_DE_PRUEBA)
     print("\nConexion exitosa. La IA respondio:\n")
     print(resultado)

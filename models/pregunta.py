@@ -8,14 +8,19 @@ class Pregunta(db.Model):
     caso_estudio_id = db.Column(
         db.Integer, db.ForeignKey("casos_estudio.id"), nullable=False
     )
+    capa = db.Column(db.Integer, nullable=False)  # 1 = filtro procesal, 2 = analisis sustantivo
+    hechos_relevantes = db.Column(db.Text)  # "Hechos relevantes para esta pregunta" (Nivel B)
     enunciado = db.Column(db.Text, nullable=False)
-    tipo = db.Column(db.String(50))
     orden = db.Column(db.Integer)
 
     respuesta = db.relationship(
         "Respuesta", backref="pregunta", uselist=False, lazy=True,
         cascade="all, delete-orphan"
     )
+    diagnostico = db.relationship(
+        "DiagnosticoElemento", backref="pregunta", uselist=False, lazy=True,
+        cascade="all, delete-orphan"
+    )
 
     def __repr__(self):
-        return f"<Pregunta {self.orden}>"
+        return f"<Pregunta {self.orden} (capa {self.capa})>"

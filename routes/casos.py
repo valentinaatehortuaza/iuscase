@@ -9,12 +9,10 @@ from werkzeug.utils import secure_filename
 
 from database.db import db
 from models import (
-    Analisis,
     CasoEstudio,
-    DecisionJudicial,
+    DiagnosticoElemento,
     Pregunta,
     Respuesta,
-    Retroalimentacion,
     Sentencia,
 )
 from routes.utils import login_requerido
@@ -147,41 +145,47 @@ def subir_sentencia():
         db.session.add(sentencia)
         db.session.commit()
 
-        # Paso 2: comprimir el problema juridico central
-        resumen = servicio_ia.analizar_sentencia(texto)
+        # Etapa 0: clasificacion
+        clasificacion = servicio_ia.clasificar_sentencia(texto)
 
-        # Paso 3: construir el caso de estudio (sin revelar el fallo)
-        caso_generado = servicio_ia.generar_caso(texto, resumen["problema_juridico"])
+        # Etapa 1 (Nivel A): nucleo narrativo + problema juridico
+        exposicion = servicio_ia.generar_nucleo_narrativo(texto, clasificacion)
+
+        # Etapa 2: preguntas guia, en llamadas separadas por capa (cada una
+        # con su propio bloque de "hechos relevantes" - Nivel B) para que
+        # ninguna llamada individual a la IA tenga que generar demasiado
+        # contenido de una sola vez.
+        preguntas_capa1 = servicio_ia.generar_preguntas_capa1(
+            texto, clasificacion, exposicion.get("nucleo_narrativo")
+        )
+        preguntas_capa2 = servicio_ia.generar_preguntas_capa2(
+            texto, clasificacion, exposicion.get("nucleo_narrativo")
+        )
 
         caso = CasoEstudio(
             usuario_id=session["usuario_id"],
             sentencia_id=sentencia.id,
-            hechos=caso_generado["hechos"],
-            contexto=caso_generado["contexto"],
-            problema_juridico=resumen["problema_juridico"],
-            actores="\n".join(caso_generado.get("actores", [])),
-            elementos_clave="\n".join(caso_generado.get("elementos_clave", [])),
+            tipo_tutela=clasificacion.get("tipo_tutela"),
+            fundamento_particular=clasificacion.get("fundamento_particular"),
+            requiere_ponderacion=bool(clasificacion.get("requiere_ponderacion")),
+            legitimacion_activa_especial=clasificacion.get("legitimacion_activa_especial"),
+            nucleo_narrativo=exposicion.get("nucleo_narrativo"),
+            problema_juridico=exposicion.get("problema_juridico"),
         )
         db.session.add(caso)
         db.session.commit()
 
-        # La decision real se guarda ya, pero no se muestra hasta el final
-        decision_extraida = servicio_ia.extraer_decision_judicial(texto)
-        db.session.add(DecisionJudicial(
-            caso_estudio_id=caso.id,
-            decision=decision_extraida["decision"],
-            fundamentos=decision_extraida["fundamentos"],
-            resultado=decision_extraida["resultado"],
-        ))
-
-        # Paso 4: preguntas guia
-        for p in servicio_ia.generar_preguntas(caso):
-            db.session.add(Pregunta(
-                caso_estudio_id=caso.id,
-                enunciado=p["enunciado"],
-                tipo=p["tipo"],
-                orden=p["orden"],
-            ))
+        orden = 1
+        for capa, preguntas in ((1, preguntas_capa1), (2, preguntas_capa2)):
+            for p in preguntas:
+                db.session.add(Pregunta(
+                    caso_estudio_id=caso.id,
+                    capa=capa,
+                    hechos_relevantes=p.get("hechos_relevantes"),
+                    enunciado=p["texto"],
+                    orden=orden,
+                ))
+                orden += 1
 
         db.session.commit()
 
@@ -200,47 +204,58 @@ def resolver_caso(caso_id):
     if caso.estado == "completado":
         return redirect(url_for("casos.ver_retroalimentacion", caso_id=caso.id))
 
+    preguntas_ordenadas = sorted(caso.preguntas, key=lambda p: p.orden or 0)
+
     if request.method == "POST":
-        # Paso 5: guardar las respuestas del estudiante, agrupadas por tipo
-        respuestas_por_tipo = {}
-        for pregunta in caso.preguntas:
+        # Etapa 3: se guardan las respuestas del estudiante (no se genera nada aqui)
+        paquete_para_ia = []
+        for pregunta in preguntas_ordenadas:
             texto_respuesta = request.form.get(f"respuesta_{pregunta.id}", "").strip()
             db.session.add(Respuesta(pregunta_id=pregunta.id, texto=texto_respuesta))
-            respuestas_por_tipo.setdefault(pregunta.tipo, []).append(texto_respuesta)
+            paquete_para_ia.append({
+                "pregunta": pregunta.enunciado,
+                "hechos_relevantes": pregunta.hechos_relevantes,
+                "respuesta_estudiante": texto_respuesta,
+            })
         db.session.commit()
 
-        analisis = Analisis(
-            caso_estudio_id=caso.id,
-            problema_juridico_estudiante=caso.problema_juridico,
-            normas="\n".join(respuestas_por_tipo.get("normas", [])),
-            argumentos="\n".join(
-                respuestas_por_tipo.get("argumentos", [])
-                + respuestas_por_tipo.get("otro", [])
-            ),
-            decision_estudiante="\n".join(respuestas_por_tipo.get("decision", [])),
+        # Etapa 4: contraste y diagnostico, elemento por elemento
+        diagnostico = servicio_ia.generar_diagnostico(caso.sentencia.texto, paquete_para_ia)
+        elementos = diagnostico.get("elementos", [])
+
+        puntaje_total = 0.0
+        elementos_puntuables = 0
+
+        for pregunta, elem in zip(preguntas_ordenadas, elementos):
+            puntos = elem.get("puntos")
+            veredicto = elem.get("veredicto")
+            if veredicto != "no_aplicable" and puntos is not None:
+                puntaje_total += puntos
+                elementos_puntuables += 1
+
+            db.session.add(DiagnosticoElemento(
+                caso_estudio_id=caso.id,
+                pregunta_id=pregunta.id,
+                elemento=elem.get("elemento"),
+                respuesta_estudiante=elem.get("respuesta_estudiante"),
+                veredicto=veredicto,
+                explicacion=elem.get("explicacion"),
+                fragmento_sentencia=elem.get("fragmento_sentencia"),
+                puntos=puntos,
+            ))
+
+        caso.elementos_puntuables = elementos_puntuables
+        caso.puntaje_total = puntaje_total
+        caso.porcentaje_global = (
+            round(puntaje_total / elementos_puntuables * 100, 1)
+            if elementos_puntuables else None
         )
-        db.session.add(analisis)
-        db.session.commit()
-
-        # Paso 6: comparar con la decision real y generar retroalimentacion
-        comparacion = servicio_ia.comparar_decision(analisis, caso.decision_judicial)
-        retro_generada = servicio_ia.generar_retroalimentacion(comparacion)
-
-        db.session.add(Retroalimentacion(
-            analisis_id=analisis.id,
-            coherencia=retro_generada["coherencia"],
-            fortalezas=retro_generada["fortalezas"],
-            debilidades=retro_generada["debilidades"],
-            sugerencias=retro_generada["sugerencias"],
-            resultado=retro_generada["resultado"],
-        ))
-
         caso.estado = "completado"
         db.session.commit()
 
         return redirect(url_for("casos.ver_retroalimentacion", caso_id=caso.id))
 
-    return render_template("resolver_caso.html", caso=caso)
+    return render_template("resolver_caso.html", caso=caso, preguntas=preguntas_ordenadas)
 
 
 @casos_bp.route("/caso/<int:caso_id>/retroalimentacion")
@@ -250,14 +265,16 @@ def ver_retroalimentacion(caso_id):
         id=caso_id, usuario_id=session["usuario_id"]
     ).first_or_404()
 
-    if caso.estado != "completado" or caso.analisis is None:
+    if caso.estado != "completado":
         flash("Todavia no has completado este caso.")
         return redirect(url_for("casos.resolver_caso", caso_id=caso.id))
+
+    diagnostico_ordenado = sorted(
+        caso.diagnostico_elementos, key=lambda d: (d.pregunta.orden or 0)
+    )
 
     return render_template(
         "retroalimentacion.html",
         caso=caso,
-        analisis=caso.analisis,
-        decision=caso.decision_judicial,
-        retro=caso.analisis.retroalimentacion,
+        diagnostico=diagnostico_ordenado,
     )
