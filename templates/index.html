@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block titulo %}IUSCase{% endblock %}
+{% block contenido %}
+
+<h1>⚖️ IUSCase</h1>
+
+<h2>
+    Aprende Derecho resolviendo casos reales
+    mediante Inteligencia Artificial
+</h2>
+
+<p>
+    La plataforma guía al estudiante para
+    comprender una sentencia,
+    construir su propio análisis jurídico
+    y comparar posteriormente su decisión
+    con la del juez.
+</p>
+
+<div class="botones">
+    {% if session.usuario_id %}
+    <a href="{{ url_for('dashboard.panel') }}"><button>Ir a mi panel</button></a>
+    {% else %}
+    <a href="{{ url_for('auth.registro') }}"><button>Comenzar ahora</button></a>
+    {% endif %}
+</div>
+
+{% endblock %}

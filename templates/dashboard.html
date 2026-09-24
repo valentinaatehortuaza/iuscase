@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block titulo %}Mi panel - IUSCase{% endblock %}
+{% block contenido %}
+
+<h1>Mis casos de estudio</h1>
+
+<div class="botones">
+    <a href="{{ url_for('casos.subir_sentencia') }}"><button>+ Estudiar una nueva sentencia</button></a>
+</div>
+
+{% if casos %}
+<div class="lista-casos">
+    {% for caso in casos %}
+    <div class="tarjeta">
+        <h3>{{ caso.sentencia.titulo }}</h3>
+        <p>{{ caso.problema_juridico }}</p>
+        <span class="badge badge-{{ caso.estado }}">{{ caso.estado }}</span>
+        <p>
+            {% if caso.estado == "completado" %}
+            <a href="{{ url_for('casos.ver_retroalimentacion', caso_id=caso.id) }}"><button>Ver retroalimentación</button></a>
+            {% else %}
+            <a href="{{ url_for('casos.resolver_caso', caso_id=caso.id) }}"><button>Continuar</button></a>
+            {% endif %}
+        </p>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<p>Todavía no has estudiado ningún caso.</p>
+{% endif %}
+
+{% endblock %}

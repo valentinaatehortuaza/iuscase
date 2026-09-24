@@ -1,0 +1,9 @@
+Flask>=3.1
+Flask-SQLAlchemy>=3.1
+anthropic>=0.40
+python-dotenv>=1.0
+pypdf>=5.0
+requests>=2.32
+beautifulsoup4>=4.12
+truststore>=0.9
+gunicorn>=21.2

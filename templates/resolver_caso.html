@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block titulo %}Resolver caso - IUSCase{% endblock %}
+{% block contenido %}
+
+<h1>{{ caso.sentencia.titulo }}</h1>
+
+<div class="tarjeta">
+    <h3>Problema jurídico</h3>
+    <p>{{ caso.problema_juridico }}</p>
+
+    <h3>Hechos</h3>
+    <p>{{ caso.hechos }}</p>
+
+    {% if caso.actores %}
+    <h3>Actores</h3>
+    <ul>
+        {% for actor in caso.actores.split("\n") if actor %}
+        <li>{{ actor }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+
+    {% if caso.elementos_clave %}
+    <h3>Elementos clave</h3>
+    <ul>
+        {% for elemento in caso.elementos_clave.split("\n") if elemento %}
+        <li>{{ elemento }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+
+    <h3>Contexto</h3>
+    <p>{{ caso.contexto }}</p>
+</div>
+
+<div class="progreso">
+    <div class="progreso-texto"><span id="progreso-contador">0</span> de {{ caso.preguntas|length }} preguntas respondidas</div>
+    <div class="progreso-barra"><div class="progreso-relleno" id="progreso-relleno"></div></div>
+</div>
+
+<form method="POST" class="formulario" id="formulario-caso">
+    {% for pregunta in caso.preguntas|sort(attribute="orden") %}
+    <div class="campo">
+        <label for="respuesta_{{ pregunta.id }}">{{ pregunta.orden }}. {{ pregunta.enunciado }}</label>
+        <textarea id="respuesta_{{ pregunta.id }}" name="respuesta_{{ pregunta.id }}" rows="4" required></textarea>
+    </div>
+    {% endfor %}
+    <button type="submit">Enviar mi análisis</button>
+</form>
+
+<script>
+    (function () {
+        var areas = document.querySelectorAll('#formulario-caso textarea');
+        var contador = document.getElementById('progreso-contador');
+        var relleno = document.getElementById('progreso-relleno');
+
+        function actualizar() {
+            var respondidas = 0;
+            areas.forEach(function (a) {
+                if (a.value.trim().length > 0) respondidas++;
+            });
+            contador.textContent = respondidas;
+            relleno.style.width = (areas.length ? (respondidas / areas.length * 100) : 0) + '%';
+        }
+
+        areas.forEach(function (a) {
+            a.addEventListener('input', actualizar);
+        });
+        actualizar();
+    })();
+</script>
+
+{% endblock %}
