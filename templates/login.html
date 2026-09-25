@@ -2,20 +2,24 @@
 {% block titulo %}Ingresar - IUSCase{% endblock %}
 {% block contenido %}
 
-<h1>Ingresar</h1>
+<div class="tarjeta-auth">
+    <div class="auth-marca">⚖️</div>
+    <h1 class="auth-titulo">Bienvenida de nuevo</h1>
+    <p class="auth-subtitulo">Ingresa para continuar con tus casos de estudio</p>
 
-<form method="POST" class="formulario">
-    <div class="campo">
-        <label for="correo">Correo</label>
-        <input type="email" id="correo" name="correo" required>
-    </div>
-    <div class="campo">
-        <label for="contrasena">Contraseña</label>
-        <input type="password" id="contrasena" name="contrasena" required>
-    </div>
-    <button type="submit">Ingresar</button>
-</form>
+    <form method="POST" class="formulario">
+        <div class="campo">
+            <label for="correo">Correo</label>
+            <input type="email" id="correo" name="correo" required>
+        </div>
+        <div class="campo">
+            <label for="contrasena">Contraseña</label>
+            <input type="password" id="contrasena" name="contrasena" required>
+        </div>
+        <button type="submit" class="boton-ancho">Ingresar</button>
+    </form>
 
-<p><a class="enlace" href="{{ url_for('auth.registro') }}">¿No tienes cuenta? Regístrate</a></p>
+    <p class="auth-enlace"><a class="enlace" href="{{ url_for('auth.registro') }}">¿No tienes cuenta? Regístrate</a></p>
+</div>
 
 {% endblock %}

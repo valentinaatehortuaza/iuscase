@@ -171,7 +171,40 @@ button:hover, .boton:hover{
     border-color: rgba(212,175,55,0.35);
 }
 .tarjeta ul{ padding-left:20px; }
-.lista-casos{ text-align:left; }
+
+.lista-casos{
+    text-align:left;
+    display:grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap:18px;
+}
+.lista-casos .tarjeta{
+    margin:0;
+    max-width:none;
+    display:flex;
+    flex-direction:column;
+}
+.resumen-caso{
+    font-size:15px;
+    color: var(--texto-suave);
+    flex-grow:1;
+    display:-webkit-box;
+    -webkit-line-clamp:3;
+    -webkit-box-orient:vertical;
+    overflow:hidden;
+}
+.badges-caso{
+    display:flex;
+    flex-wrap:wrap;
+    gap:6px;
+    margin:10px 0 2px;
+}
+.acciones-caso{
+    margin-top:14px;
+}
+.acciones-caso button, .acciones-caso .boton{
+    width:100%;
+}
 
 .badge{
     display:inline-block;
@@ -447,6 +480,46 @@ a{
     margin:0;
 }
 
+/* ================== Tarjeta de ingreso / registro ================== */
+
+.tarjeta-auth{
+    background: var(--superficie);
+    border:1px solid rgba(212,175,55,0.15);
+    border-radius:18px;
+    padding:44px 40px;
+    max-width:420px;
+    margin:30px auto;
+    text-align:center;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.25);
+}
+.auth-marca{
+    font-size:36px;
+    margin-bottom:8px;
+}
+.auth-titulo{
+    font-size:28px;
+    margin-bottom:8px;
+}
+.auth-subtitulo{
+    color: var(--texto-suave);
+    font-size:14px;
+    margin-bottom:30px;
+}
+.tarjeta-auth .formulario{
+    text-align:left;
+    max-width:100%;
+    margin:0;
+}
+.boton-ancho{
+    width:100%;
+}
+.auth-enlace{
+    margin-top:22px;
+    margin-bottom:0;
+    font-size:14px;
+    text-align:center;
+}
+
 /* ================== Adaptacion a pantallas pequenas (movil) ================== */
 
 @media (max-width: 640px){
@@ -521,5 +594,9 @@ a{
     .pasos{
         grid-template-columns: 1fr;
         gap:14px;
+    }
+    .tarjeta-auth{
+        padding:32px 24px;
+        margin:16px auto;
     }
 }

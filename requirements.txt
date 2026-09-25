@@ -7,3 +7,4 @@ requests>=2.32
 beautifulsoup4>=4.12
 truststore>=0.9
 gunicorn>=21.2
+psycopg2-binary>=2.9

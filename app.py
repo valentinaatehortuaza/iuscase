@@ -19,7 +19,13 @@ from routes.dashboard import dashboard_bp
 from routes.casos import casos_bp
 
 app = Flask(__name__)
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///iuscase.db"
+url_base_datos = os.getenv("DATABASE_URL", "sqlite:///iuscase.db")
+# Render entrega a veces el prefijo antiguo "postgres://", pero SQLAlchemy 2.x
+# exige "postgresql://". Si no se corrige, la conexion falla en produccion.
+if url_base_datos.startswith("postgres://"):
+    url_base_datos = url_base_datos.replace("postgres://", "postgresql://", 1)
+
+app.config["SQLALCHEMY_DATABASE_URI"] = url_base_datos
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SECRET_KEY"] = os.getenv("FLASK_SECRET_KEY", "cambia-esto-antes-de-publicar")
 app.config["MAX_CONTENT_LENGTH"] = 20 * 1024 * 1024  # 20 MB por archivo subido
