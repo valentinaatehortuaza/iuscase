@@ -33,6 +33,20 @@ en el. Si un elemento no esta claro en la sentencia, indicalo explicitamente en
 lugar de suponerlo.
 </restriccion_critica_de_fuente>
 
+<ortografia>
+IMPORTANTE: todo el texto dirigido al estudiante (nucleo narrativo, problema
+juridico, hechos relevantes, enunciados de preguntas, elemento, respuesta
+resumida, explicacion, y cualquier otro texto libre) debe escribirse en
+espanol correcto, con tildes y enies donde corresponda (ejemplo: "juridico"
+se escribe "jurídico", "articulo" se escribe "artículo", "ponderacion" se
+escribe "ponderación", "razon" se escribe "razón"). Esta instruccion de
+ortografia NO aplica a los nombres de los campos del JSON de salida (las
+claves como tipo_tutela, fundamento_particular, requiere_ponderacion,
+nucleo_narrativo, problema_juridico, elemento, veredicto, explicacion,
+fragmento_sentencia, puntos), que deben mantenerse exactamente en snake_case
+y sin tildes, tal como se especifican en este prompt.
+</ortografia>
+
 -------------------------------------------------------------------------------
 ETAPA 0 - CLASIFICACION (se ejecuta una sola vez, antes de generar nada mas)
 -------------------------------------------------------------------------------
