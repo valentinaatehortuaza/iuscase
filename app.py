@@ -27,6 +27,13 @@ if url_base_datos.startswith("postgres://"):
 
 app.config["SQLALCHEMY_DATABASE_URI"] = url_base_datos
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+# Postgres gratis (Render, etc.) cierra las conexiones inactivas por su cuenta.
+# Sin esto, la primera peticion despues de un rato de inactividad revienta con
+# un error porque SQLAlchemy intenta reusar una conexion ya muerta.
+app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
+    "pool_pre_ping": True,
+    "pool_recycle": 280,
+}
 app.config["SECRET_KEY"] = os.getenv("FLASK_SECRET_KEY", "cambia-esto-antes-de-publicar")
 app.config["MAX_CONTENT_LENGTH"] = 20 * 1024 * 1024  # 20 MB por archivo subido
 
