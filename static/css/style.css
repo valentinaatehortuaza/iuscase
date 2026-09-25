@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Work+Sans:wght@400;500;600;700&display=swap');
 
 :root{
     --fondo: #0f172a;
@@ -17,7 +17,7 @@
 body{
     margin:0;
     background: radial-gradient(circle at top, #16213e 0%, var(--fondo) 55%);
-    font-family:'Inter', Arial, Helvetica, sans-serif;
+    font-family:'Work Sans', Arial, Helvetica, sans-serif;
     color: var(--texto);
     min-height:100vh;
 }
@@ -70,9 +70,12 @@ h1{
 }
 
 h2{
+    font-family:'Playfair Display', serif;
+    font-style:italic;
     color: var(--dorado);
-    font-weight:500;
-    font-size:21px;
+    font-weight:600;
+    font-size:22px;
+    letter-spacing:0.2px;
 }
 
 h3{
@@ -344,9 +347,11 @@ a{
     padding:12px 18px;
     border-left:3px solid var(--dorado-suave);
     background: rgba(255,255,255,0.03);
+    font-family:'Playfair Display', serif;
     font-style:italic;
     color: var(--texto-suave);
-    font-size:15px;
+    font-size:16px;
+    line-height:1.6;
 }
 
 /* ================== Overlay de carga (mientras la IA procesa) ================== */
@@ -389,4 +394,132 @@ a{
     color: var(--texto-suave);
     max-width:420px;
     margin:0;
+}
+
+/* ================== Seccion "Como funciona" (pagina de inicio) ================== */
+
+.titulo-seccion{
+    margin-top:64px;
+    margin-bottom:6px;
+    font-size:24px;
+    text-align:center;
+}
+
+.pasos{
+    display:grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap:18px;
+    margin-top:26px;
+    text-align:left;
+}
+.paso{
+    background: var(--superficie);
+    border:1px solid rgba(212,175,55,0.1);
+    border-radius:14px;
+    padding:22px 22px;
+    transition: transform 0.2s ease, border-color 0.2s ease;
+}
+.paso:hover{
+    transform: translateY(-3px);
+    border-color: rgba(212,175,55,0.35);
+}
+.paso-numero{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:32px;
+    height:32px;
+    border-radius:50%;
+    background: linear-gradient(135deg, var(--dorado) 0%, var(--dorado-suave) 100%);
+    color: var(--fondo);
+    font-weight:700;
+    font-size:15px;
+    margin-bottom:12px;
+}
+.paso h3{
+    font-size:16px;
+    margin-bottom:6px;
+}
+.paso p{
+    font-size:14px;
+    line-height:1.55;
+    color: var(--texto-suave);
+    margin:0;
+}
+
+/* ================== Adaptacion a pantallas pequenas (movil) ================== */
+
+@media (max-width: 640px){
+    .contenedor{
+        width:92%;
+        margin-top:30px;
+        margin-bottom:50px;
+    }
+    .navbar{
+        padding:14px 18px;
+    }
+    .navbar .marca{
+        font-size:19px;
+    }
+    .navbar .enlaces a{
+        margin-left:14px;
+        font-size:13px;
+    }
+    h1{
+        font-size:30px;
+        line-height:1.25;
+    }
+    h2{
+        font-size:17px;
+    }
+    h3{
+        font-size:17px;
+    }
+    p{
+        font-size:15.5px;
+        line-height:1.6;
+    }
+    .tarjeta{
+        padding:18px 18px;
+        margin:16px auto;
+    }
+    .formulario{
+        max-width:100%;
+    }
+    .botones{
+        flex-direction:column;
+        align-items:stretch;
+    }
+    .botones button, .botones .boton{
+        width:100%;
+    }
+    button, .boton{
+        padding:13px 22px;
+        font-size:15px;
+    }
+    .puntaje-circulo{
+        width:110px;
+        height:110px;
+        font-size:26px;
+    }
+    .overlay-titulo{
+        font-size:19px;
+    }
+    .overlay-subtitulo{
+        font-size:13px;
+    }
+    .diagnostico-item h3{
+        font-size:16px;
+    }
+    .pregunta-bloque{
+        padding:16px 16px;
+    }
+    .titulo-seccion{
+        margin-top:44px;
+        font-size:20px;
+    }
+    .pasos{
+        grid-template-columns: 1fr;
+        gap:14px;
+    }
 }
