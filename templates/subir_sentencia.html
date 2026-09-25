@@ -5,8 +5,8 @@
 <h1>Sube una sentencia</h1>
 
 <p>
-    Sube el PDF, pega el link a la sentencia (por ejemplo de la Rama Judicial
-    o la Corte Constitucional), o pega el texto directamente.
+    Sube el PDF, pega el link de la sentencia de la Corte Constitucional,
+    o pega el texto directamente.
     La IA identificará el problema jurídico y construirá el caso por ti
     (esto puede tardar unos segundos).
 </p>
@@ -17,19 +17,14 @@
         <input type="text" id="titulo" name="titulo" required>
     </div>
     <div class="campo">
-        <label for="tribunal">Tribunal (opcional)</label>
-        <input type="text" id="tribunal" name="tribunal">
-    </div>
-
-    <div class="campo">
         <label for="archivo_pdf">Sube el PDF de la sentencia</label>
         <input type="file" id="archivo_pdf" name="archivo_pdf" accept="application/pdf">
     </div>
 
-    <p class="separador">— o pega el link a la sentencia —</p>
+    <p class="separador">— o pega el link de la sentencia de la Corte Constitucional —</p>
 
     <div class="campo">
-        <label for="url_sentencia">Link a la sentencia</label>
+        <label for="url_sentencia">Link de la sentencia de la Corte Constitucional</label>
         <input type="url" id="url_sentencia" name="url_sentencia"
                placeholder="https://www.corteconstitucional.gov.co/relatoria/...">
     </div>

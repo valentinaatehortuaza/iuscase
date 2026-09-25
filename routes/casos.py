@@ -77,7 +77,6 @@ def _descargar_desde_url(url):
 def subir_sentencia():
     if request.method == "POST":
         titulo = request.form["titulo"].strip()
-        tribunal = request.form.get("tribunal", "").strip()
         texto = request.form.get("texto", "").strip()
         url_sentencia = request.form.get("url_sentencia", "").strip()
         archivo = request.files.get("archivo_pdf")
@@ -138,7 +137,7 @@ def subir_sentencia():
         sentencia = Sentencia(
             usuario_id=session["usuario_id"],
             titulo=titulo,
-            tribunal=tribunal or None,
+            tribunal="Corte Constitucional",
             texto=texto,
             archivo=nombre_archivo_guardado,
         )
