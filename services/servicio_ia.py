@@ -251,6 +251,11 @@ class ServicioIA:
 
     def __init__(self):
         self._cliente = Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
+        # Acumula los tokens de entrada/salida de las llamadas a la API para
+        # poder calcular el costo real por caso. Se reinicia con
+        # obtener_y_reiniciar_uso() despues de cada tramo del flujo.
+        self._tokens_entrada_acumulados = 0
+        self._tokens_salida_acumulados = 0
 
     # ---------- utilidades internas ----------
 
@@ -261,6 +266,8 @@ class ServicioIA:
             system=SYSTEM_PROMPT,
             messages=[{"role": "user", "content": prompt}],
         )
+        self._tokens_entrada_acumulados += respuesta.usage.input_tokens
+        self._tokens_salida_acumulados += respuesta.usage.output_tokens
         if respuesta.stop_reason == "max_tokens":
             raise ValueError(
                 "La respuesta de la IA se corto porque supero el limite de "
@@ -277,6 +284,18 @@ class ServicioIA:
         if not bloques_texto:
             raise ValueError("La IA no devolvio ningun bloque de texto en la respuesta.")
         return "".join(bloques_texto)
+
+    def obtener_y_reiniciar_uso(self):
+        """
+        Devuelve (tokens_entrada, tokens_salida) acumulados desde la ultima
+        vez que se llamo este metodo (o desde que se creo el objeto), y
+        reinicia el contador a cero. Se usa para guardar el costo real de
+        cada caso en la base de datos.
+        """
+        tokens = (self._tokens_entrada_acumulados, self._tokens_salida_acumulados)
+        self._tokens_entrada_acumulados = 0
+        self._tokens_salida_acumulados = 0
+        return tokens
 
     def _parsear_json(self, texto):
         """Extrae el primer bloque JSON de la respuesta del modelo."""

@@ -28,6 +28,12 @@ class CasoEstudio(db.Model):
     puntaje_total = db.Column(db.Float)
     porcentaje_global = db.Column(db.Float)
 
+    # ---- Costo en tokens de la API de Anthropic para este caso ----
+    # Se van sumando en cada llamada a la IA (clasificacion, nucleo narrativo,
+    # preguntas y diagnostico) para poder calcular despues el costo real por caso.
+    tokens_entrada = db.Column(db.Integer, default=0)
+    tokens_salida = db.Column(db.Integer, default=0)
+
     preguntas = db.relationship(
         "Pregunta", backref="caso_estudio", lazy=True,
         cascade="all, delete-orphan", order_by="Pregunta.orden",

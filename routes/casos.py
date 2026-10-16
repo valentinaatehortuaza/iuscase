@@ -161,6 +161,8 @@ def subir_sentencia():
             texto, clasificacion, exposicion.get("nucleo_narrativo")
         )
 
+        tokens_entrada, tokens_salida = servicio_ia.obtener_y_reiniciar_uso()
+
         caso = CasoEstudio(
             usuario_id=session["usuario_id"],
             sentencia_id=sentencia.id,
@@ -170,6 +172,8 @@ def subir_sentencia():
             legitimacion_activa_especial=clasificacion.get("legitimacion_activa_especial"),
             nucleo_narrativo=exposicion.get("nucleo_narrativo"),
             problema_juridico=exposicion.get("problema_juridico"),
+            tokens_entrada=tokens_entrada,
+            tokens_salida=tokens_salida,
         )
         db.session.add(caso)
         db.session.commit()
@@ -220,6 +224,7 @@ def resolver_caso(caso_id):
 
         # Etapa 4: contraste y diagnostico, elemento por elemento
         diagnostico = servicio_ia.generar_diagnostico(caso.sentencia.texto, paquete_para_ia)
+        tokens_entrada, tokens_salida = servicio_ia.obtener_y_reiniciar_uso()
         elementos = diagnostico.get("elementos", [])
 
         puntaje_total = 0.0
@@ -249,6 +254,8 @@ def resolver_caso(caso_id):
             round(puntaje_total / elementos_puntuables * 100, 1)
             if elementos_puntuables else None
         )
+        caso.tokens_entrada = (caso.tokens_entrada or 0) + tokens_entrada
+        caso.tokens_salida = (caso.tokens_salida or 0) + tokens_salida
         caso.estado = "completado"
         db.session.commit()
 
