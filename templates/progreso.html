@@ -113,9 +113,9 @@
             <span class="pista">
                 <span class="relleno {{ b.nivel }}" style="width:{{ b.porcentaje }}%"
                       title="{{ b.acertado }} acertados · {{ b.incompleto }} incompletos · {{ b.incorrecto }} incorrectos de {{ b.total }}"></span>
-                <span class="valor-barra {{ b.nivel }}" style="left:{{ b.porcentaje }}%">
-                    <span class="icono">{{ '✓' if b.nivel == 'alto' else ('!' if b.nivel == 'medio' else '×') }}</span>{{ b.porcentaje }}%
-                </span>
+            </span>
+            <span class="valor-barra {{ b.nivel }}">
+                <span class="icono">{{ '✓' if b.nivel == 'alto' else ('!' if b.nivel == 'medio' else '×') }}</span>{{ b.porcentaje }}%
             </span>
         </div>
         {% endfor %}
@@ -164,9 +164,9 @@
             <span class="pista">
                 <span class="relleno {{ b.nivel }}" style="width:{{ b.porcentaje }}%"
                       title="{{ b.titulos|join(' · ') }}"></span>
-                <span class="valor-barra {{ b.nivel }}" style="left:{{ b.porcentaje }}%">
-                    <span class="icono">{{ '✓' if b.nivel == 'alto' else ('!' if b.nivel == 'medio' else '×') }}</span>{{ b.porcentaje }}%
-                </span>
+            </span>
+            <span class="valor-barra {{ b.nivel }}">
+                <span class="icono">{{ '✓' if b.nivel == 'alto' else ('!' if b.nivel == 'medio' else '×') }}</span>{{ b.porcentaje }}%
             </span>
         </div>
         {% endfor %}

@@ -388,11 +388,8 @@ button:focus-visible, .boton:focus-visible{
 .fila-barra .relleno.medio{ background: var(--naranja); }
 .fila-barra .relleno.bajo{ background: var(--rojo); }
 .fila-barra .valor-barra{
-    position:absolute;
-    left:100%;
-    top:50%;
-    transform: translateY(-50%);
-    margin-left:10px;
+    flex-shrink:0;
+    width:66px;
     font-size:13px;
     font-weight:600;
     white-space:nowrap;
