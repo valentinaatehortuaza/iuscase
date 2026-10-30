@@ -11,9 +11,15 @@
         <span>{{ caso.porcentaje_global }}%</span>
     </div>
     <p class="puntaje-detalle">{{ caso.puntaje_total }} de {{ caso.elementos_puntuables }} elementos evaluables</p>
+    {% if caso.calidad_sustento_nivel %}
+    <p class="puntaje-detalle">
+        Calidad de sustento: <strong>{{ caso.calidad_sustento_nivel }}</strong> — {{ caso.calidad_sustento_justificacion }}
+    </p>
+    {% endif %}
     {% else %}
     <p>No hay elementos puntuables para este caso.</p>
     {% endif %}
+    <button type="button" class="boton boton-secundario boton-descargar no-imprimir" onclick="window.print()">Descargar / imprimir resultado</button>
 </div>
 
 <div class="lista-diagnostico">

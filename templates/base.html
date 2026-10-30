@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block titulo %}IUSCase{% endblock %}</title>
-    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%9A%96%EF%B8%8F%3C/text%3E%3C/svg%3E">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%230f172a'/%3E%3Ctext x='50' y='64' font-family='Georgia,serif' font-size='46' font-weight='700' fill='%23d4af37' text-anchor='middle'%3EIC%3C/text%3E%3C/svg%3E">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 
@@ -15,7 +15,8 @@
     <a class="marca" href="{{ url_for('inicio') }}">⚖️ IUSCase</a>
     <div class="enlaces">
         {% if session.usuario_id %}
-        <a href="{{ url_for('dashboard.panel') }}">Mi panel</a>
+        <a href="{{ url_for('dashboard.panel') }}" class="{{ 'activo' if request.endpoint == 'dashboard.panel' else '' }}">Mi panel</a>
+        <a href="{{ url_for('casos.progreso') }}" class="{{ 'activo' if request.endpoint == 'casos.progreso' else '' }}">Mi progreso</a>
         <a href="{{ url_for('auth.logout') }}">Cerrar sesión</a>
         {% else %}
         <a href="{{ url_for('auth.login') }}">Ingresar</a>
@@ -28,11 +29,14 @@
 
     {% with mensajes = get_flashed_messages() %}
         {% if mensajes %}
-        <ul class="mensajes">
+        <div class="mensajes">
             {% for m in mensajes %}
-            <li>{{ m }}</li>
+            <div class="flash">
+                <span class="flash-icono">!</span>
+                <span class="flash-texto">{{ m }}</span>
+            </div>
             {% endfor %}
-        </ul>
+        </div>
         {% endif %}
     {% endwith %}
 

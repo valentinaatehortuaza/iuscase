@@ -1,0 +1,257 @@
+{% extends "base.html" %}
+{% block titulo %}Mi progreso - IUSCase{% endblock %}
+{% block contenido %}
+
+<div class="panel-header">
+    <h1>Mi progreso</h1>
+    <p>Así evoluciona tu desempeño caso a caso, y en qué elementos del razonamiento jurídico necesitas reforzar.</p>
+</div>
+
+{% if total_completados > 0 %}
+<div class="stats-fila">
+    <div class="stat-tile">
+        <div class="fila-valor">
+            <span class="valor">{{ promedio_puntaje }}%</span>
+            {% if delta_vs_anterior is not none %}
+            <span class="delta {{ 'positivo' if delta_vs_anterior >= 0 else 'negativo' }}">
+                {{ '+' if delta_vs_anterior >= 0 else '' }}{{ delta_vs_anterior }}% vs tu caso anterior
+            </span>
+            {% endif %}
+        </div>
+        <div class="etiqueta">Puntaje promedio</div>
+    </div>
+    <div class="stat-tile">
+        <div class="fila-valor"><span class="valor">{{ total_completados }}</span></div>
+        <div class="etiqueta">Caso{{ 's' if total_completados != 1 else '' }} calificado{{ 's' if total_completados != 1 else '' }}</div>
+    </div>
+    {% if categoria_mas_debil %}
+    <div class="stat-tile" {% if descripcion_categoria(categoria_mas_debil.categoria) %}title="{{ descripcion_categoria(categoria_mas_debil.categoria) }}"{% endif %}>
+        <div class="fila-valor">
+            <span class="valor" style="color:var(--rojo); font-size:20px;">{{ categoria_mas_debil.categoria }}</span>
+            <span class="valor" style="color:var(--rojo); font-size:20px;">{{ categoria_mas_debil.porcentaje }}%</span>
+        </div>
+        <div class="etiqueta">Elemento del razonamiento con más oportunidad de mejora</div>
+        {% if descripcion_categoria(categoria_mas_debil.categoria) %}
+        <div class="etiqueta-sub">{{ descripcion_categoria(categoria_mas_debil.categoria) }}</div>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endif %}
+
+<div class="panel-seccion">
+    <h2>Evolución de tu puntaje</h2>
+    <p class="subt">Puntaje obtenido en cada caso completado, en orden cronológico.</p>
+
+    {% if puntos_linea|length >= 3 %}
+    <div class="chart-linea" id="chartLinea">
+        <svg viewBox="0 0 640 230" preserveAspectRatio="xMidYMid meet" role="img"
+             aria-label="Evolución del puntaje a lo largo de {{ puntos_linea|length }} casos">
+            <line x1="40" y1="20" x2="620" y2="20" stroke="var(--grid)" stroke-width="1"/>
+            <line x1="40" y1="65" x2="620" y2="65" stroke="var(--grid)" stroke-width="1"/>
+            <line x1="40" y1="110" x2="620" y2="110" stroke="var(--grid)" stroke-width="1"/>
+            <line x1="40" y1="155" x2="620" y2="155" stroke="var(--grid)" stroke-width="1"/>
+            <line x1="40" y1="200" x2="620" y2="200" stroke="var(--grid)" stroke-width="1"/>
+            <text x="30" y="24" text-anchor="end" font-size="11" fill="var(--texto-suave)">100</text>
+            <text x="30" y="69" text-anchor="end" font-size="11" fill="var(--texto-suave)">75</text>
+            <text x="30" y="114" text-anchor="end" font-size="11" fill="var(--texto-suave)">50</text>
+            <text x="30" y="159" text-anchor="end" font-size="11" fill="var(--texto-suave)">25</text>
+            <text x="30" y="204" text-anchor="end" font-size="11" fill="var(--texto-suave)">0</text>
+
+            <polyline fill="none" stroke="var(--dorado-suave)" stroke-width="2"
+                      stroke-linejoin="round" stroke-linecap="round"
+                      points="{{ polyline_puntos }}" />
+
+            {% for p in puntos_linea %}
+            <circle class="punto-hover" data-caso="{{ p.titulo }}" data-fecha="{{ p.fecha }}" data-valor="{{ p.valor }}"
+                    cx="{{ p.x }}" cy="{{ p.y }}" r="{{ 6 if loop.last else 5 }}"
+                    fill="var(--dorado-suave)" stroke="var(--superficie)" stroke-width="2"/>
+            {% endfor %}
+
+            <text x="{{ puntos_linea[-1].x }}" y="{{ puntos_linea[-1].y - 12 }}" text-anchor="end"
+                  font-size="13" font-weight="700" fill="var(--dorado-suave)">{{ puntos_linea[-1].valor }}%</text>
+        </svg>
+        <div class="tooltip-chart" id="tooltipLinea"></div>
+    </div>
+
+    <details class="tabla-toggle">
+        <summary>Ver como tabla</summary>
+        <table class="tabla-datos">
+            <thead><tr><th>Caso</th><th>Fecha</th><th>Puntaje</th></tr></thead>
+            <tbody>
+                {% for p in puntos_linea %}
+                <tr><td>{{ p.titulo }}</td><td>{{ p.fecha }}</td><td class="num">{{ p.valor }}%</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </details>
+    {% else %}
+    <div class="estado-insuficiente">
+        Necesitas al menos 3 casos calificados para ver tu tendencia.
+        <div class="progreso-mini">
+            {% for i in range(3) %}
+            <span class="punto-mini {{ 'lleno' if i < total_completados else '' }}"></span>
+            {% endfor %}
+        </div>
+        Llevas {{ total_completados }} de 3.
+    </div>
+    {% endif %}
+</div>
+
+{% if barras %}
+<div class="panel-seccion">
+    <h2>Fortalezas y debilidades por elemento</h2>
+    <p class="subt">Porcentaje de aciertos acumulado por tipo de elemento jurídico evaluado, en todos tus casos.</p>
+
+    <div class="lista-barras">
+        {% for b in barras %}
+        <div class="fila-barra">
+            <span class="nombre">
+                {{ b.categoria }}
+                {% if descripcion_categoria(b.categoria) %}<span class="nombre-sub">{{ descripcion_categoria(b.categoria) }}</span>{% endif %}
+            </span>
+            <span class="pista">
+                <span class="relleno {{ b.nivel }}" style="width:{{ b.porcentaje }}%"
+                      title="{{ b.acertado }} acertados · {{ b.incompleto }} incompletos · {{ b.incorrecto }} incorrectos de {{ b.total }}"></span>
+                <span class="valor-barra {{ b.nivel }}" style="left:{{ b.porcentaje }}%">
+                    <span class="icono">{{ '✓' if b.nivel == 'alto' else ('!' if b.nivel == 'medio' else '×') }}</span>{{ b.porcentaje }}%
+                </span>
+            </span>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if categoria_mas_debil and categoria_mas_debil.porcentaje < 70 %}
+    <div class="insight">
+        <span class="icono-insight">!</span>
+        <span><strong>{{ categoria_mas_debil.categoria }}</strong>{% if descripcion_categoria(categoria_mas_debil.categoria) %} ({{ descripcion_categoria(categoria_mas_debil.categoria) }}){% endif %} es tu área con más oportunidad de mejora
+        ({{ categoria_mas_debil.porcentaje }}% de aciertos). Vale la pena repasarla antes de tu próxima sesión.</span>
+    </div>
+    {% endif %}
+
+    <details class="tabla-toggle">
+        <summary>Ver como tabla</summary>
+        <table class="tabla-datos">
+            <thead><tr><th>Elemento</th><th>Acertados</th><th>Incompletos</th><th>Incorrectos</th><th>% aciertos</th></tr></thead>
+            <tbody>
+                {% for b in barras %}
+                <tr>
+                    <td>{{ b.categoria }}</td>
+                    <td class="num">{{ b.acertado }}</td>
+                    <td class="num">{{ b.incompleto }}</td>
+                    <td class="num">{{ b.incorrecto }}</td>
+                    <td class="num">{{ b.porcentaje }}%</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </details>
+</div>
+{% endif %}
+
+{% if barras_derecho %}
+<div class="panel-seccion">
+    <h2>Fortalezas y debilidades por área del derecho</h2>
+    <p class="subt">Puntaje promedio de tus casos, agrupados por el derecho fundamental en juego en cada sentencia (un caso puede contar en más de un área).</p>
+
+    <div class="lista-barras">
+        {% for b in barras_derecho %}
+        <div class="fila-barra">
+            <span class="nombre">
+                {{ b.categoria }}
+                {% if b.slug == 'otro' %}<span class="nombre-sub">{{ b.titulos|join(', ') }}</span>{% endif %}
+            </span>
+            <span class="pista">
+                <span class="relleno {{ b.nivel }}" style="width:{{ b.porcentaje }}%"
+                      title="{{ b.titulos|join(' · ') }}"></span>
+                <span class="valor-barra {{ b.nivel }}" style="left:{{ b.porcentaje }}%">
+                    <span class="icono">{{ '✓' if b.nivel == 'alto' else ('!' if b.nivel == 'medio' else '×') }}</span>{{ b.porcentaje }}%
+                </span>
+            </span>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if derecho_mas_debil and derecho_mas_debil.porcentaje < 70 %}
+    <div class="insight">
+        <span class="icono-insight">!</span>
+        <span><strong>{{ derecho_mas_debil.categoria }}</strong>{% if derecho_mas_debil.slug == 'otro' %} ({{ derecho_mas_debil.titulos|join(', ') }}){% endif %} es tu área del derecho con más oportunidad de mejora
+        ({{ derecho_mas_debil.porcentaje }}% en promedio). Esta vista te dice <em>en qué tema</em> repasar;
+        la de "por elemento" más arriba te dice <em>qué parte del razonamiento</em> repasar en ese tema.
+        {% if derecho_mas_debil.slug == 'otro' %}"Otro" significa que ese caso no encajó en ninguno de los derechos específicos del catálogo (como salud, mínimo vital o vivienda digna).{% endif %}</span>
+    </div>
+    {% endif %}
+
+    <details class="tabla-toggle">
+        <summary>Ver como tabla</summary>
+        <table class="tabla-datos">
+            <thead><tr><th>Área del derecho</th><th>Casos</th><th>Puntaje promedio</th></tr></thead>
+            <tbody>
+                {% for b in barras_derecho %}
+                <tr><td>{{ b.categoria }}</td><td class="num">{{ b.total }}</td><td class="num">{{ b.porcentaje }}%</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </details>
+</div>
+{% endif %}
+
+{% if total_con_sustento > 0 %}
+<div class="panel-seccion">
+    <h2>Calidad de redacción y sustento</h2>
+    <p class="subt">No mide si el contenido jurídico es correcto (eso ya está arriba), sino qué tan bien argumentas: si citas fundamento concreto, si la redacción es clara y si usas terminología precisa.</p>
+
+    <div class="stats-fila" style="margin-bottom:16px;">
+        <div class="stat-tile">
+            <div class="valor verde">{{ conteo_sustento.alta }}</div>
+            <div class="etiqueta">Sustento alto</div>
+        </div>
+        <div class="stat-tile">
+            <div class="valor" style="color:var(--naranja)">{{ conteo_sustento.media }}</div>
+            <div class="etiqueta">Sustento medio</div>
+        </div>
+        <div class="stat-tile">
+            <div class="valor" style="color:var(--rojo)">{{ conteo_sustento.baja }}</div>
+            <div class="etiqueta">Sustento bajo</div>
+        </div>
+    </div>
+
+    {% if ultimo_sustento %}
+    <div class="insight" style="border-color:rgba(212,175,55,0.3); background:rgba(212,175,55,0.07);">
+        <span class="icono-insight" style="color:var(--dorado-suave);">i</span>
+        <span>En el último caso que completaste ("{{ ultimo_sustento.sentencia.titulo }}"), tu sustento fue
+        <strong>{{ ultimo_sustento.calidad_sustento_nivel }}</strong>: {{ ultimo_sustento.calidad_sustento_justificacion }}</span>
+    </div>
+    {% endif %}
+</div>
+{% endif %}
+
+{% if total_completados == 0 %}
+<div class="estado-vacio">
+    <p>Todavía no tienes casos calificados. Completa tu primer caso para empezar a ver tu progreso aquí.</p>
+    <a href="{{ url_for('casos.subir_sentencia') }}" class="boton">+ Estudiar una sentencia</a>
+</div>
+{% endif %}
+
+<p><a class="enlace" href="{{ url_for('dashboard.panel') }}">&larr; Volver a mi panel</a></p>
+
+<script>
+(function(){
+    var tooltip = document.getElementById('tooltipLinea');
+    var contenedor = document.getElementById('chartLinea');
+    if (!tooltip || !contenedor) return;
+    document.querySelectorAll('.punto-hover').forEach(function(c){
+        c.addEventListener('mouseenter', function(){
+            var r = contenedor.getBoundingClientRect();
+            var cx = c.getBoundingClientRect();
+            tooltip.innerHTML = '<strong>' + c.dataset.caso + '</strong><br>' + c.dataset.fecha + ' — ' + c.dataset.valor + '%';
+            tooltip.style.left = (cx.left - r.left + cx.width/2) + 'px';
+            tooltip.style.top = (cx.top - r.top) + 'px';
+            tooltip.classList.add('visible');
+        });
+        c.addEventListener('mouseleave', function(){ tooltip.classList.remove('visible'); });
+    });
+})();
+</script>
+
+{% endblock %}

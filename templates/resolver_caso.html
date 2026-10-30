@@ -35,10 +35,14 @@
             </div>
             {% endif %}
             <label for="respuesta_{{ pregunta.id }}">{{ pregunta.orden }}. {{ pregunta.enunciado }}</label>
-            <textarea id="respuesta_{{ pregunta.id }}" name="respuesta_{{ pregunta.id }}" rows="4" required></textarea>
+            <textarea id="respuesta_{{ pregunta.id }}" name="respuesta_{{ pregunta.id }}" rows="4" required>{{ pregunta.respuesta.texto if pregunta.respuesta else "" }}</textarea>
         </div>
     {% endfor %}
-    <button type="submit" id="boton-enviar">Enviar mi análisis</button>
+    <div class="acciones-formulario">
+        <button type="button" id="boton-borrador" class="boton boton-secundario">Guardar borrador</button>
+        <button type="submit" id="boton-enviar">Enviar mi análisis</button>
+        <span id="estado-borrador" class="estado-borrador"></span>
+    </div>
 </form>
 
 <div class="overlay-carga" id="overlay-carga">
@@ -52,6 +56,14 @@
         var areas = document.querySelectorAll('#formulario-caso textarea');
         var contador = document.getElementById('progreso-contador');
         var relleno = document.getElementById('progreso-relleno');
+        var formulario = document.getElementById('formulario-caso');
+        var overlay = document.getElementById('overlay-carga');
+        var boton = document.getElementById('boton-enviar');
+        var botonBorrador = document.getElementById('boton-borrador');
+        var estadoBorrador = document.getElementById('estado-borrador');
+
+        var huboCambios = false;
+        var guardando = false;
 
         function actualizar() {
             var respondidas = 0;
@@ -62,19 +74,68 @@
             relleno.style.width = (areas.length ? (respondidas / areas.length * 100) : 0) + '%';
         }
 
+        function guardarBorrador() {
+            if (guardando) return;
+            guardando = true;
+            botonBorrador.disabled = true;
+            var textoOriginalBoton = botonBorrador.textContent;
+            botonBorrador.textContent = 'Guardando…';
+            estadoBorrador.classList.remove('estado-borrador-error');
+
+            var datos = new FormData(formulario);
+
+            fetch('{{ url_for("casos.guardar_borrador", caso_id=caso.id) }}', {
+                method: 'POST',
+                body: datos
+            })
+            .then(function (resp) { return resp.json(); })
+            .then(function (data) {
+                if (data.ok) {
+                    huboCambios = false;
+                    estadoBorrador.textContent = 'Guardado ✓ ' + data.hora;
+                } else {
+                    estadoBorrador.textContent = 'No se pudo guardar. Intenta de nuevo.';
+                    estadoBorrador.classList.add('estado-borrador-error');
+                }
+            })
+            .catch(function () {
+                estadoBorrador.textContent = 'No se pudo guardar (revisa tu conexión).';
+                estadoBorrador.classList.add('estado-borrador-error');
+            })
+            .finally(function () {
+                guardando = false;
+                botonBorrador.disabled = false;
+                botonBorrador.textContent = 'Guardar borrador';
+            });
+        }
+
         areas.forEach(function (a) {
-            a.addEventListener('input', actualizar);
+            a.addEventListener('input', function () {
+                actualizar();
+                huboCambios = true;
+            });
+            // guarda en automatico apenas el estudiante termina de escribir
+            // en una pregunta y pasa a la siguiente
+            a.addEventListener('blur', function () {
+                if (huboCambios) guardarBorrador();
+            });
         });
         actualizar();
 
-        var formulario = document.getElementById('formulario-caso');
-        var overlay = document.getElementById('overlay-carga');
-        var boton = document.getElementById('boton-enviar');
+        // respaldo: si se queda escribiendo largo rato en una sola pregunta
+        // sin cambiar de campo, igual se guarda cada 45 segundos
+        setInterval(function () {
+            if (huboCambios) guardarBorrador();
+        }, 45000);
 
         formulario.addEventListener('submit', function () {
             overlay.classList.add('overlay-visible');
             boton.disabled = true;
             boton.textContent = 'Enviando…';
+        });
+
+        botonBorrador.addEventListener('click', function () {
+            guardarBorrador();
         });
     })();
 </script>

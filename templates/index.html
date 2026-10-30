@@ -2,30 +2,27 @@
 {% block titulo %}IUSCase{% endblock %}
 {% block contenido %}
 
-<h1>⚖️ IUSCase</h1>
-
-<h2>
-    Aprende Derecho resolviendo casos reales
-    mediante Inteligencia Artificial
-</h2>
-
-<p>
-    La plataforma guía al estudiante para
-    comprender una sentencia,
-    construir su propio análisis jurídico
-    y comparar posteriormente su decisión
-    con la del juez.
-</p>
-
-<div class="botones">
-    {% if session.usuario_id %}
-    <a href="{{ url_for('dashboard.panel') }}"><button>Ir a mi panel</button></a>
-    {% else %}
-    <a href="{{ url_for('auth.registro') }}"><button>Comenzar ahora</button></a>
-    {% endif %}
+<div class="hero-texto">
+    <span class="hero-gancho">El fallo se revela solo al final</span>
+    <h1>Aprende Derecho resolviendo casos reales con Inteligencia Artificial</h1>
+    <p>
+        La plataforma guía al estudiante para
+        comprender una sentencia,
+        construir su propio análisis jurídico
+        y comparar posteriormente su decisión
+        con la del juez.
+    </p>
+    <div class="botones">
+        {% if session.usuario_id %}
+        <a href="{{ url_for('dashboard.panel') }}" class="boton">Ir a mi panel</a>
+        {% else %}
+        <a href="{{ url_for('auth.registro') }}" class="boton">Comenzar ahora</a>
+        {% endif %}
+        <a href="#como-funciona" class="boton boton-secundario">Ver cómo funciona</a>
+    </div>
 </div>
 
-<h2 class="titulo-seccion">Cómo funciona</h2>
+<h2 class="titulo-seccion" id="como-funciona">Cómo funciona</h2>
 
 <div class="pasos">
     <div class="paso">
@@ -47,6 +44,37 @@
         <span class="paso-numero">4</span>
         <h3>Comparas tu decisión</h3>
         <p>La IA contrasta tu análisis contra el fallo real, elemento por elemento, y te da un diagnóstico con tu porcentaje de acierto.</p>
+    </div>
+</div>
+
+<div class="seccion-resultado">
+    <h2 class="titulo-seccion" style="margin-top:0;">Así se ve tu resultado</h2>
+    <div class="intro">
+        <p>Al final de cada caso recibes un diagnóstico elemento por elemento, con tu porcentaje de acierto frente a lo que realmente resolvió la Corte.</p>
+    </div>
+    <div class="resultado-visual">
+        <span class="resultado-visual-etiqueta">T-302 de 2024 — Vivienda digna</span>
+        <div class="resultado-puntaje-circulo">85%</div>
+        <p class="resultado-visual-titulo">Tu diagnóstico final</p>
+        <div class="resultado-elemento">
+            <span>Legitimación activa</span>
+            <span class="badge badge-veredicto-acertado">Acertado</span>
+        </div>
+        <div class="resultado-elemento">
+            <span>Subsidiariedad</span>
+            <span class="badge badge-veredicto-acertado">Acertado</span>
+        </div>
+        <div class="resultado-elemento">
+            <span>Subregla de fondo</span>
+            <span class="badge badge-veredicto-incompleto">Incompleto</span>
+        </div>
+    </div>
+    <div class="cta-final">
+        {% if session.usuario_id %}
+        <a href="{{ url_for('dashboard.panel') }}" class="boton">Ir a mi panel</a>
+        {% else %}
+        <a href="{{ url_for('auth.registro') }}" class="boton">Comenzar ahora</a>
+        {% endif %}
     </div>
 </div>
 

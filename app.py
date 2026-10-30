@@ -39,6 +39,12 @@ app.config["MAX_CONTENT_LENGTH"] = 20 * 1024 * 1024  # 20 MB por archivo subido
 
 db.init_app(app)
 
+from services.catalogo_derechos import nombre_derecho
+app.jinja_env.globals['nombre_derecho'] = nombre_derecho
+
+from services.categorias_elementos import descripcion_categoria
+app.jinja_env.globals['descripcion_categoria'] = descripcion_categoria
+
 app.register_blueprint(auth_bp)
 app.register_blueprint(dashboard_bp)
 app.register_blueprint(casos_bp)

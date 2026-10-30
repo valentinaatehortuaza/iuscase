@@ -2,40 +2,93 @@
 {% block titulo %}Mi panel - IUSCase{% endblock %}
 {% block contenido %}
 
-<h1>Mis casos de estudio</h1>
-
-<div class="botones">
-    <a href="{{ url_for('casos.subir_sentencia') }}"><button>+ Estudiar una nueva sentencia</button></a>
+<div class="panel-header">
+    <h1>Mis casos de estudio</h1>
+    <p>Aquí ves tu progreso y puedes retomar cualquier caso cuando quieras.</p>
 </div>
 
 {% if casos %}
-<div class="lista-casos">
-    {% for caso in casos %}
-    <div class="tarjeta">
-        <h3>{{ caso.sentencia.titulo }}</h3>
-        <p class="resumen-caso">{{ caso.problema_juridico }}</p>
-        <div class="badges-caso">
-            <span class="badge badge-{{ caso.estado }}">{{ caso.estado }}</span>
-            {% if caso.estado == "completado" and caso.porcentaje_global is not none %}
-            <span class="badge badge-veredicto-{{ 'acertado' if caso.porcentaje_global >= 70 else ('incompleto' if caso.porcentaje_global >= 40 else 'incorrecto') }}">
-                {{ caso.porcentaje_global }}%
-            </span>
-            {% endif %}
-        </div>
-        <div class="acciones-caso">
-            {% if caso.estado == "completado" %}
-            <a href="{{ url_for('casos.ver_retroalimentacion', caso_id=caso.id) }}"><button>Ver retroalimentación</button></a>
-            {% else %}
-            <a href="{{ url_for('casos.resolver_caso', caso_id=caso.id) }}"><button>Continuar</button></a>
-            {% endif %}
-        </div>
+<div class="stats-fila">
+    <div class="stat-tile">
+        <div class="valor">{{ total_casos }}</div>
+        <div class="etiqueta">Caso{{ 's' if total_casos != 1 else '' }} trabajado{{ 's' if total_casos != 1 else '' }}</div>
     </div>
+    <div class="stat-tile">
+        <div class="valor verde">{{ casos_completados }}</div>
+        <div class="etiqueta">Completado{{ 's' if casos_completados != 1 else '' }}</div>
+    </div>
+    <div class="stat-tile">
+        <div class="valor">{{ (promedio_puntaje|string ~ '%') if promedio_puntaje is not none else '—' }}</div>
+        <div class="etiqueta">Puntaje promedio</div>
+    </div>
+</div>
+
+{% if temas_disponibles %}
+<div class="filtros-tema" id="filtrosTema">
+    <span class="chip-tema activo" data-tema="todos">Todos ({{ total_casos }})</span>
+    {% for t in temas_disponibles %}
+    <span class="chip-tema" data-tema="{{ t.slug }}">{{ t.nombre }} ({{ t.conteo }})</span>
     {% endfor %}
 </div>
+{% endif %}
+
+<div class="lista-casos" id="listaCasos">
+    {% for caso in casos %}
+    <a class="tarjeta-caso" data-temas="{{ caso.derechos_vulnerados or '' }}" href="{{ url_for('casos.ver_retroalimentacion', caso_id=caso.id) if caso.estado == 'completado' else url_for('casos.resolver_caso', caso_id=caso.id) }}">
+        <div class="fila-top">
+            <h3>{{ caso.sentencia.titulo }}</h3>
+            <span class="badge badge-{{ caso.estado }}">{{ caso.estado.replace('_', ' ') }}</span>
+        </div>
+        {% if caso.temas_ordenados %}
+        <div class="fila-temas">
+            {% for nombre in caso.temas_ordenados %}
+            <span class="etiqueta-tema">{{ nombre }}</span>
+            {% endfor %}
+        </div>
+        {% endif %}
+        <p class="resumen-caso">{{ caso.problema_juridico }}</p>
+        <div class="fila-footer">
+            {% if caso.estado == "completado" and caso.porcentaje_global is not none %}
+            <span class="puntaje-mini {{ 'alto' if caso.porcentaje_global >= 70 else ('medio' if caso.porcentaje_global >= 40 else 'bajo') }}">Puntaje: <span class="num">{{ caso.porcentaje_global }}%</span></span>
+            {% else %}
+            <span class="puntaje-mini pendiente">Sin calificar aún</span>
+            {% endif %}
+            <span class="cta-mini">{{ 'Ver retroalimentación' if caso.estado == 'completado' else 'Continuar' }} <span class="flecha">&rarr;</span></span>
+        </div>
+    </a>
+    {% endfor %}
+
+    <a class="tarjeta-nueva" href="{{ url_for('casos.subir_sentencia') }}">
+        <span class="signo">+</span>
+        <span class="texto">Estudiar una nueva sentencia</span>
+    </a>
+</div>
+
 {% else %}
-<p>Todavía no has estudiado ningún caso.</p>
+<div class="estado-vacio">
+    <p>Todavía no has estudiado ningún caso. Sube tu primera sentencia y empieza a construir tu historial de práctica.</p>
+    <a href="{{ url_for('casos.subir_sentencia') }}" class="boton">+ Estudiar tu primera sentencia</a>
+</div>
 {% endif %}
 
 <p><a class="enlace" href="{{ url_for('inicio') }}">&larr; Volver al inicio</a></p>
+
+<script>
+document.querySelectorAll('.chip-tema').forEach(function(chip){
+    chip.addEventListener('click', function(){
+        document.querySelectorAll('.chip-tema').forEach(function(c){ c.classList.remove('activo'); });
+        chip.classList.add('activo');
+        var tema = chip.dataset.tema;
+        document.querySelectorAll('.tarjeta-caso').forEach(function(t){
+            var temas = (t.dataset.temas || '').split(',');
+            if (tema === 'todos' || temas.indexOf(tema) !== -1){
+                t.classList.remove('oculta');
+            } else {
+                t.classList.add('oculta');
+            }
+        });
+    });
+});
+</script>
 
 {% endblock %}

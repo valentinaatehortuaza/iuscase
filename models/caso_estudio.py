@@ -16,17 +16,31 @@ class CasoEstudio(db.Model):
     requiere_ponderacion = db.Column(db.Boolean, default=False)
     legitimacion_activa_especial = db.Column(db.String(120))
 
+    # ---- derechos fundamentales en juego (catalogo fijo, ver services/catalogo_derechos.py) ----
+    # Guardados como string separado por comas (ej. "salud,minimo_vital") porque
+    # un caso puede invocar mas de un derecho.
+    derechos_vulnerados = db.Column(db.Text)
+
     # ---- Etapa 1: exposicion (Nivel A) ----
     nucleo_narrativo = db.Column(db.Text)
     problema_juridico = db.Column(db.Text)
 
     estado = db.Column(db.String(20), default="en_progreso")
     fecha_creacion = db.Column(db.DateTime, default=datetime.utcnow)
+    # Cuando el caso paso a "completado" (distinto de fecha_creacion, que es
+    # cuando se subio la sentencia -- un caso puede quedar "en progreso" dias
+    # y completarse despues de otros casos creados mas tarde). Null en casos
+    # viejos que se completaron antes de que existiera esta columna.
+    fecha_completado = db.Column(db.DateTime)
 
     # ---- Etapa 4: diagnostico (agregados; el detalle vive en DiagnosticoElemento) ----
     elementos_puntuables = db.Column(db.Integer)
     puntaje_total = db.Column(db.Float)
     porcentaje_global = db.Column(db.Float)
+
+    # ---- Etapa 4: calidad de sustento y redaccion (holistico, no por elemento) ----
+    calidad_sustento_nivel = db.Column(db.String(10))  # alta | media | baja
+    calidad_sustento_justificacion = db.Column(db.Text)
 
     # ---- Costo en tokens de la API de Anthropic para este caso ----
     # Se van sumando en cada llamada a la IA (clasificacion, nucleo narrativo,
