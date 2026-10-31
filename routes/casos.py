@@ -146,6 +146,34 @@ def subir_sentencia():
         db.session.add(sentencia)
         db.session.commit()
 
+        # Paso 0: verificacion barata de que lo subido de verdad sea una
+        # sentencia de tutela de la Corte Constitucional, ANTES de gastar las
+        # 4 llamadas caras de clasificacion/preguntas. Si no lo es, el
+        # estudiante ve un mensaje claro en vez de preguntas sin sentido o un
+        # error generico, y no se gasta en las llamadas caras.
+        try:
+            validacion = servicio_ia.validar_es_sentencia_tutela(texto)
+        except Exception:
+            traceback.print_exc()
+            servicio_ia.obtener_y_reiniciar_uso()
+            flash(
+                "Hubo un problema verificando este documento (puede ser un "
+                "problema temporal de conexion con la IA). Intenta subirlo de "
+                "nuevo en un momento."
+            )
+            return redirect(url_for("casos.subir_sentencia"))
+
+        if not validacion["es_sentencia_tutela"]:
+            servicio_ia.obtener_y_reiniciar_uso()
+            motivo = validacion["motivo"] or "el texto no parece corresponder a una sentencia de tutela."
+            flash(
+                "Esto no parece ser una sentencia de tutela de la Corte "
+                f"Constitucional de Colombia: {motivo} Verifica el documento o "
+                "el link que subiste, o pega directamente el texto de una "
+                "sentencia T- o SU- de la Corte Constitucional."
+            )
+            return redirect(url_for("casos.subir_sentencia"))
+
         # Etapas 0 a 2: clasificacion, nucleo narrativo y preguntas guia.
         # Las 4 llamadas van en un solo try/except: si la sentencia subida es
         # muy larga/compleja o hay un problema temporal con la IA, el

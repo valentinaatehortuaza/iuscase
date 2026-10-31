@@ -433,6 +433,42 @@ class ServicioIA:
             f"{json.dumps(datos, ensure_ascii=False, indent=2)}"
         )
 
+    # ---------- Etapa -1: validacion de entrada (antes de gastar las 4 llamadas caras) ----------
+
+    def validar_es_sentencia_tutela(self, texto_sentencia):
+        """
+        Chequeo rapido y barato (max_tokens bajo) para detectar ANTES de las
+        llamadas caras si lo que se subio ni siquiera es una sentencia de
+        revision de tutela de la Corte Constitucional de Colombia (por
+        ejemplo: un PDF de otra cosa, un contrato, o una sentencia real pero
+        de otro tribunal). Si pasa este chequeo, el texto queda cacheado y
+        las llamadas siguientes (clasificar_sentencia y las demas) lo leen
+        del cache en vez de pagar por reprocesarlo.
+        """
+        instrucciones = """Antes de cualquier otra cosa, tu UNICA tarea aqui es verificar si el
+texto en <sentencia> es el texto (completo o un extracto sustancial) de una
+SENTENCIA DE REVISION DE TUTELA emitida por la Corte Constitucional de
+Colombia -- normalmente identificable por un encabezado como "CORTE
+CONSTITUCIONAL" y una numeracion tipo T-### o SU-### de un año dado.
+
+NO es una sentencia de tutela de la Corte Constitucional si, por ejemplo,
+es: un documento de otro tipo (contrato, articulo, ley, concepto), una
+sentencia de otro tribunal (Consejo de Estado, Corte Suprema de Justicia,
+un juzgado o tribunal de instancia), o un texto sin relacion con una
+decision judicial de tutela.
+
+Responde SOLO con este JSON, sin nada mas (usa true o false, no texto):
+{"es_sentencia_tutela": true o false, "motivo": "si es false: una frase breve en español explicando por que no califico, pensada para mostrarsela directamente al estudiante. Si es true: cadena vacia."}
+"""
+        sentencia_bloque = f"<sentencia>\n{texto_sentencia}\n</sentencia>"
+        datos = self._parsear_json(
+            self._preguntar(instrucciones, max_tokens=300, texto_cacheable=sentencia_bloque)
+        )
+        return {
+            "es_sentencia_tutela": bool(datos.get("es_sentencia_tutela")),
+            "motivo": datos.get("motivo") or "",
+        }
+
     # ---------- Etapa 0: clasificacion ----------
 
     def clasificar_sentencia(self, texto_sentencia):
