@@ -20,6 +20,15 @@
             <label for="contrasena">Contraseña</label>
             <input type="password" id="contrasena" name="contrasena" autocomplete="new-password" required minlength="6">
         </div>
+        <div class="campo-check">
+            <input type="checkbox" id="acepta_politica" name="acepta_politica" value="si" required>
+            <label for="acepta_politica">
+                He leído y acepto la
+                <a class="enlace" href="{{ url_for('politica_datos') }}" target="_blank" rel="noopener">Política de tratamiento de datos personales</a>,
+                y autorizo de forma previa, expresa e informada el tratamiento de mis datos para las finalidades allí descritas,
+                incluida su transmisión a los proveedores de alojamiento e inteligencia artificial ubicados fuera de Colombia.
+            </label>
+        </div>
         <button type="submit" class="boton-ancho">Registrarme</button>
     </form>
 

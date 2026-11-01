@@ -4,3 +4,4 @@ from .caso_estudio import CasoEstudio
 from .pregunta import Pregunta
 from .respuesta import Respuesta
 from .diagnostico_elemento import DiagnosticoElemento
+from .consentimiento_datos import ConsentimientoDatos, VERSION_POLITICA_DATOS

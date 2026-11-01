@@ -13,6 +13,8 @@ from models import (
     Pregunta,
     Respuesta,
     DiagnosticoElemento,
+    ConsentimientoDatos,
+    VERSION_POLITICA_DATOS,
 )
 from routes.auth import auth_bp
 from routes.dashboard import dashboard_bp
@@ -57,6 +59,11 @@ crear_tablas(app)
 @app.route("/")
 def inicio():
     return render_template("index.html")
+
+
+@app.route("/politica-de-datos")
+def politica_datos():
+    return render_template("politica_datos.html", version=VERSION_POLITICA_DATOS)
 
 
 @app.errorhandler(413)

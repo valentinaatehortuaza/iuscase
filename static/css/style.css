@@ -1156,3 +1156,81 @@ a{
         color:#1f2937;
     }
 }
+
+
+/* ================== Politica de datos y consentimiento ================== */
+
+.campo-check{
+    display:flex;
+    gap:10px;
+    align-items:flex-start;
+    margin:4px 0 20px 0;
+    font-size:13px;
+    line-height:1.5;
+    color: var(--texto-suave);
+}
+.campo-check input{
+    width:18px;
+    height:18px;
+    margin-top:2px;
+    flex-shrink:0;
+    accent-color: var(--dorado);
+}
+.campo-check label{
+    font-weight:400;
+}
+
+.pie-sitio{
+    display:flex;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:10px;
+    padding:24px 40px 32px 40px;
+    margin-top:40px;
+    border-top:1px solid rgba(212,175,55,0.15);
+    font-size:13px;
+    color: var(--texto-suave);
+}
+.pie-sitio a{
+    color: var(--texto-suave);
+}
+.pie-sitio a:hover{
+    color: var(--dorado);
+}
+
+.politica{
+    max-width:820px;
+    margin:20px auto 40px auto;
+    line-height:1.7;
+    text-align:left;
+}
+.politica h1, .politica h2, .politica p, .politica li{
+    text-align:left;
+}
+.politica h1{
+    margin-bottom:6px;
+    line-height:1.2;
+    font-size:38px;
+}
+.politica .politica-version{
+    color: var(--texto-suave);
+    font-size:14px;
+    margin-bottom:30px;
+}
+.politica h2{
+    font-size:22px;
+    margin-top:34px;
+}
+.politica p, .politica li{
+    color: var(--texto);
+    font-size:15px;
+}
+.politica ul{
+    padding-left:22px;
+}
+.politica a{
+    color: var(--dorado-suave);
+}
+@media (max-width: 640px){
+    .pie-sitio{ padding:20px; }
+}
